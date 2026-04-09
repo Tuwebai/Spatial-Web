@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>depth-hover</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 62%); color: #e8eeff; }
+      #scene { min-height: 100vh; display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); place-content: center; gap: 24px; }
+      .card { padding: 28px; border-radius: 22px; background: rgba(17, 25, 42, 0.92); border: 1px solid rgba(255,255,255,.08); text-align: center; }
+      .hud { position: fixed; top: 16px; right: 16px; display: grid; gap: 8px; }
+      .pill { background: rgba(9, 14, 26, 0.84); padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); }
+    </style>
+  </head>
+  <body>
+    <div class="hud">
+      <div class="pill">Move the pointer across the grid</div>
+      <div class="pill">Velocity: <strong id="velocityValue">0.00</strong> px/ms</div>
+    </div>
+    <section id="scene">
+      <div class="card" data-depth="-120">Depth -120</div>
+      <div class="card" data-depth="-40">Depth -40</div>
+      <div class="card" data-depth="0">Depth 0</div>
+      <div class="card" data-depth="60">Depth 60</div>
+      <div class="card" data-depth="120">Depth 120</div>
+      <div class="card" data-depth="180">Depth 180</div>
+    </section>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 900, depthRange: [-300, 300] })
+      runtime.enableDepthHover({ responseRange: 72, velocityFactor: 0.5, returnEasing: 'spring' })
+
+      const scene = document.getElementById('scene')
+      const velocityValue = document.getElementById('velocityValue')
+      let lastX = 0
+      let lastY = 0
+      let lastTime = performance.now()
+
+      scene.addEventListener('pointermove', (event) => {
+        const now = performance.now()
+        const elapsed = Math.max(1, now - lastTime)
+        const velocity = Math.hypot(event.clientX - lastX, event.clientY - lastY) / elapsed
+        velocityValue.textContent = velocity.toFixed(2)
+        lastX = event.clientX
+        lastY = event.clientY
+        lastTime = now
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>comparison</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 62%); color: #e8eeff; padding: 32px; }
+      .grid { display: grid; gap: 24px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel { background: rgba(13, 20, 34, 0.92); border: 1px solid rgba(255,255,255,.08); border-radius: 24px; padding: 24px; min-height: 70vh; position: relative; }
+      .fake .card { transform: translateZ(80px) scale(1.06); box-shadow: 0 20px 50px rgba(0,0,0,.28); }
+      .scene { display: grid; gap: 16px; position: relative; }
+      .card { background: #11192a; border-radius: 18px; padding: 24px; border: 1px solid rgba(255,255,255,.08); }
+      .light { position: absolute; top: 12px; right: 12px; width: 16px; height: 16px; border-radius: 50%; background: #ffd76a; box-shadow: 0 0 24px rgba(255, 215, 106, 0.85); }
+      .tag { display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+      .bad { background: rgba(255, 109, 109, 0.16); color: #ff8d8d; }
+      .good { background: rgba(103, 216, 131, 0.16); color: #8cf0a5; }
+    </style>
+  </head>
+  <body>
+    <div class="grid">
+      <section class="panel fake">
+        <h2>Without spatial-web</h2>
+        <div class="scene">
+          <div class="card">Hardcoded translateZ<div class="tag bad">arbitrary number</div></div>
+          <div class="card">Manual shadow<div class="tag bad">invented shadow</div></div>
+          <div class="card">Binary hover<div class="tag bad">on/off interaction</div></div>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>With spatial-web</h2>
+        <div class="light"></div>
+        <div id="scene" class="scene">
+          <div class="card" data-depth="-120">Semantic depth<div class="tag good">real Z coordinate</div></div>
+          <div class="card" data-depth="0">Physical shadow<div class="tag good">computed from light</div></div>
+          <div class="card" data-depth="140">Continuous hover<div class="tag good">distance-based response</div></div>
+        </div>
+      </section>
+    </div>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 950, depthRange: [-300, 300] })
+      runtime.enableDepthHover({ responseRange: 64, velocityFactor: 0.35, returnEasing: 'spring' })
+      runtime.setLight({ x: 200, y: -180, z: 640, intensity: 1.2 })
+    </script>
+  </body>
+</html>

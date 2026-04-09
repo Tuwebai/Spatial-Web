@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>physical-shadow</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #17284b 0%, #050810 62%); color: #e8eeff; overflow: hidden; }
+      #scene { min-height: 100vh; display: flex; align-items: center; justify-content: center; gap: 24px; position: relative; padding: 80px 24px; overflow: hidden; }
+      .card { width: 180px; padding: 28px; border-radius: 20px; background: rgba(27, 38, 62, 0.96); border: 1px solid rgba(255,255,255,.12); position: relative; z-index: 2; }
+      .floor { position: absolute; inset: auto 5% 9% 5%; height: 320px; border-radius: 50%; background:
+        radial-gradient(circle at center, rgba(255,255,255,.10), rgba(255,255,255,0) 62%),
+        radial-gradient(circle at center, rgba(8, 12, 22, .92), rgba(8, 12, 22, 0) 72%);
+        border: 1px solid rgba(255,255,255,.06); transform: perspective(900px) rotateX(72deg); transform-origin: center;
+      }
+      .light { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #ffd76a; box-shadow: 0 0 36px rgba(255, 215, 106, 0.9); border: 2px solid rgba(255,255,255,.8); z-index: 3; cursor: grab; touch-action: none; }
+      .hud { position: fixed; top: 16px; right: 16px; display: grid; gap: 8px; z-index: 5; }
+      .pill { background: rgba(9, 14, 26, 0.84); padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); }
+      .legend { position: fixed; left: 16px; top: 16px; max-width: 320px; z-index: 5; }
+    </style>
+  </head>
+  <body>
+    <div class="legend pill">La sombra se proyecta sobre el plano del piso. Si movés la luz, cambia direccion, largo y difusion.</div>
+    <div class="hud">
+      <div class="pill">Drag the light source</div>
+      <div class="pill">Light: <strong id="lightValue">180, -120, 600</strong></div>
+    </div>
+    <section id="scene">
+      <div class="floor"></div>
+      <div class="light" id="light"></div>
+      <div class="card" data-depth="-120">Back plane</div>
+      <div class="card" data-depth="0">Center plane</div>
+      <div class="card" data-depth="160">Front plane</div>
+    </section>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const scene = document.getElementById('scene')
+      const light = document.getElementById('light')
+      const lightValue = document.getElementById('lightValue')
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1000, depthRange: [-300, 300] })
+      const lightState = { x: 180, y: -120, z: 600, intensity: 1.3 }
+
+      const renderLight = () => {
+        const sceneRect = scene.getBoundingClientRect()
+        light.style.left = `${sceneRect.width / 2 + lightState.x - 11}px`
+        light.style.top = `${sceneRect.height / 2 + lightState.y - 11}px`
+        lightValue.textContent = `${Math.round(lightState.x)}, ${Math.round(lightState.y)}, ${Math.round(lightState.z)}`
+        runtime.setLight(lightState)
+      }
+
+      const moveLight = (clientX, clientY) => {
+        const sceneRect = scene.getBoundingClientRect()
+        lightState.x = clientX - sceneRect.left - sceneRect.width / 2
+        lightState.y = clientY - sceneRect.top - sceneRect.height / 2
+        renderLight()
+      }
+
+      let dragging = false
+      light.addEventListener('pointerdown', (event) => {
+        dragging = true
+        light.setPointerCapture(event.pointerId)
+      })
+      light.addEventListener('pointermove', (event) => {
+        if (dragging) moveLight(event.clientX, event.clientY)
+      })
+      light.addEventListener('pointerup', () => {
+        dragging = false
+      })
+
+      renderLight()
+      window.addEventListener('resize', renderLight)
+    </script>
+  </body>
+</html>

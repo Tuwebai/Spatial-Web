@@ -1,0 +1,30 @@
+{
+  "name": "spatial-web",
+  "version": "0.1.0",
+  "description": "Semantic Z-axis layout runtime for the web without WebGL.",
+  "type": "module",
+  "main": "./dist/spatial-web.js",
+  "module": "./dist/spatial-web.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/spatial-web.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node -e \"const { execSync } = require('node:child_process'); execSync('npm run build:esm', { stdio: 'inherit' }); execSync('npm run build:iife', { stdio: 'inherit' }); execSync('npm run build:types', { stdio: 'inherit' });\"",
+    "build:esm": "esbuild src/index.ts --bundle --format=esm --target=es2020 --minify --tree-shaking=true --outfile=dist/spatial-web.js",
+    "build:iife": "esbuild src/index.ts --bundle --format=iife --global-name=SpatialWeb --target=es2020 --minify --tree-shaking=true --outfile=dist/spatial-web.iife.js",
+    "dev": "esbuild src/index.ts --bundle --format=iife --global-name=SpatialWeb --target=es2020 --outfile=dist/spatial-web.iife.js --watch --servedir=.",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "build:types": "tsc --project tsconfig.json --emitDeclarationOnly"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2",
+    "typescript": "^5.8.3"
+  }
+}

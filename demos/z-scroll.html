@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>z-scroll</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 58%); color: #e8eeff; }
+      #scene { min-height: 100vh; padding: 120px 24px 64px; display: grid; gap: 18px; max-width: 760px; margin: 0 auto; perspective: 1100px; }
+      article { padding: 24px; border-radius: 18px; background: rgba(17, 25, 42, 0.9); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); }
+      .hud { position: fixed; top: 16px; right: 16px; display: grid; gap: 8px; z-index: 5; }
+      .pill { background: rgba(9, 14, 26, 0.84); padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); }
+      .axis { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); width: 8px; height: 280px; background: rgba(255,255,255,.08); border-radius: 999px; }
+      .axis::after { content: ""; position: absolute; left: -6px; top: var(--indicator, 140px); width: 20px; height: 20px; border-radius: 50%; background: #4f8ef7; box-shadow: 0 0 24px rgba(79, 142, 247, 0.8); }
+    </style>
+  </head>
+  <body>
+    <div class="axis" id="axis"></div>
+    <div class="hud">
+      <div class="pill">Wheel: move content through depth</div>
+      <div class="pill">Depth offset: <strong id="depthValue">0</strong>px</div>
+    </div>
+    <section id="scene">
+      <article data-depth="-180">Background context that should feel far from the viewer.</article>
+      <article data-depth="-80">A long-form paragraph living deeper in the scene.</article>
+      <article data-depth="0">Main narrative plane where reading stays comfortable.</article>
+      <article data-depth="100">Supporting detail that starts to come forward.</article>
+      <article data-depth="180">Foreground callout that feels close to the user.</article>
+    </section>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const scene = document.getElementById('scene')
+      const depthValue = document.getElementById('depthValue')
+      const axis = document.getElementById('axis')
+      let accumulatedDepth = 0
+
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1100, depthRange: [-300, 300] })
+      runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
+
+      scene.addEventListener('wheel', (event) => {
+        accumulatedDepth -= event.deltaY * 0.45 * 0.55
+        depthValue.textContent = Math.round(accumulatedDepth)
+        const indicator = Math.max(0, Math.min(260, 140 + accumulatedDepth * 0.15))
+        axis.style.setProperty('--indicator', `${indicator}px`)
+      }, { passive: true })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>playground</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #15274b 0%, #050810 60%); color: #e8eeff; }
+      .app { min-height: 100vh; display: grid; grid-template-columns: 360px 1fr 360px; gap: 20px; padding: 20px; box-sizing: border-box; }
+      .panel { background: rgba(13, 20, 34, 0.92); border: 1px solid rgba(255,255,255,.08); border-radius: 24px; padding: 20px; }
+      .panel h2 { margin-top: 0; }
+      .controls { display: grid; gap: 14px; }
+      .group { display: grid; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .group:last-child { border-bottom: 0; }
+      .scene-shell { position: relative; overflow: hidden; }
+      #scene { min-height: calc(100vh - 40px); display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); place-content: center; gap: 24px; padding: 32px; }
+      .card { padding: 24px; border-radius: 20px; background: rgba(27, 38, 62, 0.96); border: 1px solid rgba(255,255,255,.12); position: relative; z-index: 2; }
+      .light { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #ffd76a; box-shadow: 0 0 24px rgba(255, 215, 106, 0.85); cursor: grab; z-index: 3; touch-action: none; }
+      .floor { position: absolute; inset: auto 8% 8% 8%; height: 260px; border-radius: 50%; background:
+        radial-gradient(circle at center, rgba(255,255,255,.08), rgba(255,255,255,0) 60%),
+        radial-gradient(circle at center, rgba(6, 10, 18, .94), rgba(6, 10, 18, 0) 72%);
+        border: 1px solid rgba(255,255,255,.06); transform: perspective(900px) rotateX(72deg); transform-origin: center; z-index: 1;
+      }
+      .code { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.5; }
+      button { border: 0; border-radius: 12px; padding: 10px 12px; background: #4f8ef7; color: white; cursor: pointer; }
+      input[type="range"] { width: 100%; }
+      .row { display: grid; gap: 6px; }
+      @media (max-width: 1200px) {
+        .app { grid-template-columns: 1fr; }
+        #scene { min-height: 60vh; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel">
+        <h2>Controls</h2>
+        <div class="controls">
+          <div class="group">
+            <label>Perspective: <strong id="perspectiveValue">1000</strong>px</label>
+            <input id="perspectiveRange" type="range" min="500" max="2000" value="1000" step="50" />
+          </div>
+          <div class="group">
+            <label><input id="hoverToggle" type="checkbox" checked /> Enable hover</label>
+            <label><input id="scrollToggle" type="checkbox" checked /> Enable z-scroll</label>
+            <label><input id="shadowToggle" type="checkbox" checked /> Enable shadows</label>
+          </div>
+          <div class="group">
+            <button id="addCard">+ Add element</button>
+          </div>
+          <div class="group" id="cardControls"></div>
+        </div>
+      </section>
+      <section class="panel scene-shell">
+        <div class="floor"></div>
+        <div class="light" id="light"></div>
+        <section id="scene"></section>
+      </section>
+      <section class="panel">
+        <h2>Generated code</h2>
+        <div class="code" id="codeOutput"></div>
+      </section>
+    </main>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const scene = document.getElementById('scene')
+      const lightEl = document.getElementById('light')
+      const cardControls = document.getElementById('cardControls')
+      const codeOutput = document.getElementById('codeOutput')
+      const perspectiveRange = document.getElementById('perspectiveRange')
+      const perspectiveValue = document.getElementById('perspectiveValue')
+      const hoverToggle = document.getElementById('hoverToggle')
+      const scrollToggle = document.getElementById('scrollToggle')
+      const shadowToggle = document.getElementById('shadowToggle')
+      const addCard = document.getElementById('addCard')
+
+      let runtime = null
+      let cards = [-120, -20, 80, 180]
+      const lightState = { x: 180, y: -120, z: 600, intensity: 1.3 }
+
+      const renderControls = () => {
+        cardControls.innerHTML = ''
+        cards.forEach((depth, index) => {
+          const row = document.createElement('div')
+          row.className = 'row'
+          row.innerHTML = `
+            <label>Element ${index + 1}: <strong>${depth}</strong></label>
+            <input type="range" min="-300" max="300" step="20" value="${depth}" data-index="${index}" />
+          `
+          cardControls.appendChild(row)
+        })
+      }
+
+      const renderScene = () => {
+        scene.innerHTML = ''
+        cards.forEach((depth, index) => {
+          const card = document.createElement('article')
+          card.className = 'card'
+          card.dataset.depth = String(depth)
+          card.innerHTML = `<strong>Element ${index + 1}</strong><p>data-depth="${depth}"</p>`
+          scene.appendChild(card)
+        })
+      }
+
+      const renderLight = () => {
+        const rect = scene.getBoundingClientRect()
+        lightEl.style.left = `${rect.width / 2 + lightState.x - 9}px`
+        lightEl.style.top = `${rect.height / 2 + lightState.y - 9}px`
+      }
+
+      const updateCode = () => {
+        const html = cards.map((depth, index) => `  <div data-depth="${depth}">Element ${index + 1}</div>`).join('\n')
+        const lines = [
+          `<div id="scene">`,
+          html,
+          `</div>`,
+          ``,
+          `const scene = new DepthLayout('#scene', { perspective: ${perspectiveRange.value} })`
+        ]
+        if (hoverToggle.checked) lines.push(`scene.enableDepthHover({ responseRange: 72, velocityFactor: 0.5 })`)
+        if (scrollToggle.checked) lines.push(`scene.enableDepthScroll({ axis: 'mixed', speed: 0.45 })`)
+        if (shadowToggle.checked) lines.push(`scene.setLight({ x: ${Math.round(lightState.x)}, y: ${Math.round(lightState.y)}, z: ${Math.round(lightState.z)} })`)
+        codeOutput.textContent = lines.join('\n')
+      }
+
+      const mount = () => {
+        renderScene()
+        runtime?.destroy()
+        runtime = new SpatialWeb.DepthLayout('#scene', {
+          perspective: Number(perspectiveRange.value),
+          depthRange: [-300, 300]
+        })
+        if (hoverToggle.checked) runtime.enableDepthHover({ responseRange: 72, velocityFactor: 0.5, returnEasing: 'spring' })
+        if (scrollToggle.checked) runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
+        if (shadowToggle.checked) runtime.setLight(lightState)
+        perspectiveValue.textContent = perspectiveRange.value
+        renderLight()
+        updateCode()
+      }
+
+      perspectiveRange.addEventListener('input', mount)
+      hoverToggle.addEventListener('change', mount)
+      scrollToggle.addEventListener('change', mount)
+      shadowToggle.addEventListener('change', mount)
+      addCard.addEventListener('click', () => {
+        cards.push(Math.min(300, -160 + cards.length * 80))
+        renderControls()
+        mount()
+      })
+
+      cardControls.addEventListener('input', (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLInputElement)) return
+        const index = Number(target.dataset.index)
+        cards[index] = Number(target.value)
+        renderControls()
+        mount()
+      })
+
+      let dragging = false
+      lightEl.addEventListener('pointerdown', (event) => {
+        dragging = true
+        lightEl.setPointerCapture(event.pointerId)
+      })
+      lightEl.addEventListener('pointermove', (event) => {
+        if (!dragging) return
+        const rect = scene.getBoundingClientRect()
+        lightState.x = event.clientX - rect.left - rect.width / 2
+        lightState.y = event.clientY - rect.top - rect.height / 2
+        if (shadowToggle.checked) mount()
+      })
+      lightEl.addEventListener('pointerup', () => {
+        dragging = false
+      })
+
+      window.addEventListener('resize', renderLight)
+      renderControls()
+      mount()
+    </script>
+  </body>
+</html>

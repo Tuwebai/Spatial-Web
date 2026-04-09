@@ -1,0 +1,18 @@
+# Base docs operativas de IA: se usan localmente al instanciar, pero no se suben al git del proyecto real.
+AGENTS.md
+CODEX.md
+docs/*
+skills/*
+
+# Dependencias y builds locales
+node_modules/
+dist/
+
+# Temporales de validacion local
+.playwright-inline/
+playwright-validate-*.js
+
+# Artefactos comunes de entorno
+.DS_Store
+Thumbs.db
+*.log
