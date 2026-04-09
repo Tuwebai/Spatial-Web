@@ -93,13 +93,6 @@ Artefactos generados:
 - `dist/`: bundles generados
 - `docs/`: documentacion activa del producto y arquitectura
 
-## Documentacion clave
-
-- `docs/MVP-spatial-layout.md`
-- `docs/ARCHITECTURE.md`
-- `docs/DESIGN_SYSTEM.md`
-- `docs/ROADMAP.md`
-- `docs/SECURITY.md`
 
 ## Estado actual
 
