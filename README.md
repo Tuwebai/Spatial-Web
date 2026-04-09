@@ -56,10 +56,13 @@ Clone the repo, run:
 
 ```bash
 npm install
+npm run build
 npm run dev
 ```
 
 Then open `demos/index.html` from the local server.
+
+Important: `dist/` is not committed to the repo. If you clone the project and want to open the demos locally, the build step is mandatory before the demos can load `spatial-web.iife.js`.
 
 Core demos:
 
