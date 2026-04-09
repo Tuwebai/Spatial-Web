@@ -41,6 +41,7 @@ export class DepthLayout {
     this.requestRenderBound = () => this.requestRender()
     this.items.push(...collectSceneItems(this.container))
     this.shadowModule = new PhysicalShadow({
+      container: this.container,
       items: this.items,
       depthRange: this.options.depthRange
     })
