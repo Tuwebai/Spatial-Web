@@ -9,6 +9,7 @@ import type {
   DepthLayoutOptions,
   DepthScrollOptions,
   LightSource,
+  SceneSnapshot,
   SceneItemState
 } from '../types'
 
@@ -35,6 +36,7 @@ export class DepthLayout {
   private mutationObserver: MutationObserver | null = null
   private hoverModule: DepthHover | null = null
   private scrollModule: DepthScroll | null = null
+  private light: LightSource | null = null
   private frameId = 0
   private lastFrameTime = 0
   private renderQueued = false
@@ -115,8 +117,28 @@ export class DepthLayout {
   }
 
   setLight(light: LightSource): void {
+    this.light = {
+      ...light,
+      intensity: light.intensity ?? 1
+    }
     this.shadowModule.setLight(light)
     this.requestRenderBound()
+  }
+
+  getSnapshot(): SceneSnapshot {
+    return {
+      items: this.items.map((item) => ({
+        baseDepth: item.baseDepth,
+        scrollDepth: item.scrollDepth,
+        hoverDepth: item.hoverDepth,
+        appliedDepth: item.appliedDepth,
+        metrics: { ...item.metrics }
+      })),
+      perspective: this.options.perspective,
+      depthRange: [...this.options.depthRange] as [number, number],
+      light: this.light ? { ...this.light } : null,
+      isAnimating: this.renderQueued || this.items.some((item) => Math.abs(item.scrollDepth) > 0.01 || Math.abs(item.hoverDepth) > 0.01)
+    }
   }
 
   destroy(): void {
@@ -128,6 +150,7 @@ export class DepthLayout {
     this.mutationObserver?.disconnect()
     this.scrollModule?.destroy()
     this.hoverModule?.destroy()
+    this.light = null
     this.container.style.transformStyle = ''
     this.container.style.perspective = ''
 

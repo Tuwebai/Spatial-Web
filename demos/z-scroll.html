@@ -33,24 +33,29 @@
       const scene = document.getElementById('scene')
       const depthValue = document.getElementById('depthValue')
       const axis = document.getElementById('axis')
-      let accumulatedDepth = 0
 
       const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1100, depthRange: [-300, 300] })
       runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
 
-      const updateDepthMeter = (deltaY) => {
-        accumulatedDepth -= deltaY * 0.45 * 0.55
-        depthValue.textContent = Math.round(accumulatedDepth)
-        const indicator = Math.max(0, Math.min(260, 140 + accumulatedDepth * 0.15))
+      const updateDepthMeter = () => {
+        const snapshot = runtime.getSnapshot()
+        const activeItem = snapshot.items[2] || snapshot.items[0]
+        const appliedDepth = activeItem ? activeItem.appliedDepth : 0
+        depthValue.textContent = Math.round(appliedDepth)
+        const indicator = Math.max(0, Math.min(260, 140 + appliedDepth * 0.25))
         axis.style.setProperty('--indicator', `${indicator}px`)
+        if (snapshot.isAnimating) {
+          requestAnimationFrame(updateDepthMeter)
+        }
       }
 
       const handleWheel = (event) => {
-        updateDepthMeter(event.deltaY)
+        requestAnimationFrame(updateDepthMeter)
       }
 
       scene.addEventListener('wheel', handleWheel, { passive: true })
       window.addEventListener('wheel', handleWheel, { passive: true })
+      updateDepthMeter()
     </script>
   </body>
 </html>

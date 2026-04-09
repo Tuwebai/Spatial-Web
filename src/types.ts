@@ -60,9 +60,15 @@ export interface SpringState {
 }
 
 export interface SceneSnapshot {
-  container: HTMLElement
-  items: SceneItemState[]
+  items: Array<{
+    baseDepth: number
+    scrollDepth: number
+    hoverDepth: number
+    appliedDepth: number
+    metrics: SceneItemMetrics
+  }>
   perspective: number
   depthRange: [number, number]
   light: LightSource | null
+  isAnimating: boolean
 }

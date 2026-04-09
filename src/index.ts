@@ -4,6 +4,7 @@ export type {
   DepthLayoutOptions,
   DepthScrollOptions,
   LightSource,
+  SceneSnapshot,
   Vec2,
   Vec3
 } from './types'

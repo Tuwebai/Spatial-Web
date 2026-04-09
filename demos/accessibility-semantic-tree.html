@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffffff'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>accessibility-semantic-tree</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%); color: #18243a; }
+      .layout { min-height: 100vh; display: grid; grid-template-columns: 340px 1fr; gap: 24px; padding: 24px; box-sizing: border-box; }
+      .panel { background: rgba(255,255,255,.92); border: 1px solid rgba(64,92,138,.12); border-radius: 26px; box-shadow: 0 24px 70px rgba(59,84,122,.12); }
+      .copy { padding: 24px; display: grid; gap: 16px; align-content: start; }
+      .metric { padding: 12px 14px; border-radius: 16px; background: rgba(239,244,251,.92); border: 1px solid rgba(64,92,138,.1); font-size: 13px; line-height: 1.5; }
+      .metric strong { display: block; color: #1e2b44; margin-bottom: 6px; }
+      #scene { min-height: calc(100vh - 48px); display: grid; gap: 18px; align-content: center; padding: 32px; }
+      article { padding: 22px; border-radius: 20px; background: rgba(255,255,255,.94); border: 1px solid rgba(64,92,138,.14); color: #1e2b44; }
+      code { font-family: ui-monospace, monospace; font-size: 12px; color: #4d6a99; }
+      @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <section class="panel copy">
+        <div>
+          <h1>Accessibility and semantic tree</h1>
+          <p>Esta demo muestra que el contenido sigue siendo HTML normal. `spatial-web` solo aplica `transform` y `box-shadow`; no reemplaza la estructura semántica por canvas ni por WebGL.</p>
+        </div>
+        <div class="metric">
+          <strong>Qué validar</strong>
+          <span>Inspeccioná el DOM: siguen existiendo `main`, `section`, `article`, `h2`, `p`, `button` y links reales.</span>
+        </div>
+        <div class="metric">
+          <strong>Prueba técnica</strong>
+          <span id="semanticCheck">semantic tags: ...</span>
+        </div>
+        <div class="metric">
+          <strong>Transform output</strong>
+          <code id="transformCheck">matrix3d(...)</code>
+        </div>
+      </section>
+      <section class="panel">
+        <main id="scene" aria-label="Semantic depth scene">
+          <article data-depth="-120">
+            <h2>Background context</h2>
+            <p>Supporting explanation remains a real article in the DOM.</p>
+            <a href="#cta">Jump to action</a>
+          </article>
+          <article data-depth="0">
+            <h2>Main reading plane</h2>
+            <p>The central content is still readable as standard semantic HTML.</p>
+            <button type="button">Focusable button</button>
+          </article>
+          <article data-depth="160" id="cta">
+            <h2>Foreground CTA</h2>
+            <p>This is still an article with a heading and a paragraph, just projected in depth.</p>
+          </article>
+        </main>
+      </section>
+    </main>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 980, depthRange: [-300, 300] })
+      runtime.enableDepthHover({ responseRange: 64, velocityFactor: 0.35, returnEasing: 'spring' })
+
+      const semanticCheck = document.getElementById('semanticCheck')
+      const transformCheck = document.getElementById('transformCheck')
+      const tags = ['main', 'article', 'h2', 'p', 'a', 'button']
+      const presentTags = tags.filter((tag) => document.querySelector(tag))
+      semanticCheck.textContent = `semantic tags: ${presentTags.join(', ')}`
+      transformCheck.textContent = getComputedStyle(document.querySelector('[data-depth="160"]')).transform
+    </script>
+  </body>
+</html>
