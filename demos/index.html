@@ -3,36 +3,319 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050810'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-    <title>spatial-web demos</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffffff'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>Spatial Web demos</title>
     <style>
+      :root {
+        --bg: #ffffff;
+        --bg-alt: #eef4fb;
+        --surface: rgba(255, 255, 255, 0.92);
+        --surface-strong: #f7faff;
+        --text: #18243a;
+        --muted: #58719a;
+        --accent: #4f8ef7;
+        --border: rgba(64, 92, 138, 0.12);
+        --shadow: rgba(59, 84, 122, 0.12);
+      }
+
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: system-ui, sans-serif;
-        background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
-        color: #18243a;
+        font-family: Georgia, "Times New Roman", serif;
+        background:
+          radial-gradient(circle at top left, rgba(79, 142, 247, 0.12), transparent 28%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+        color: var(--text);
+      }
+
+      main {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: 0 28px 80px var(--shadow);
+      }
+
+      .hero-copy {
         padding: 32px;
       }
-      a {
-        color: #4f8ef7;
+
+      .eyebrow {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(79, 142, 247, 0.12);
+        color: #33578e;
+        font: 600 12px/1.2 system-ui, sans-serif;
+        letter-spacing: .04em;
+        text-transform: uppercase;
       }
-      ul {
-        line-height: 1.9;
+
+      h1 {
+        margin: 18px 0 14px;
+        font-size: clamp(42px, 6vw, 72px);
+        line-height: .95;
+        letter-spacing: -0.04em;
+      }
+
+      p, li {
+        font: 500 16px/1.7 system-ui, sans-serif;
+        color: var(--muted);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font: 600 14px/1 system-ui, sans-serif;
+      }
+
+      .button-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .button-secondary {
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--text);
+        border-color: var(--border);
+      }
+
+      .hero-demo {
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-demo::before {
+        content: "";
+        position: absolute;
+        inset: auto 10% 10% 10%;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, rgba(160, 179, 209, 0.44) 0%, rgba(194, 208, 231, 0.16) 44%, rgba(236, 242, 250, 0) 74%);
+        transform: perspective(900px) rotateX(72deg);
+        opacity: .95;
+      }
+
+      .demo-grid {
+        min-height: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        align-content: center;
+        padding: 28px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .demo-card {
+        min-height: 120px;
+        padding: 20px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(64, 92, 138, 0.16);
+        box-shadow: 0 28px 60px rgba(47, 64, 95, 0.16);
+        font: 600 16px/1.4 system-ui, sans-serif;
+        color: #1e2b44;
+      }
+
+      .demo-card span {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font: 500 13px/1.5 system-ui, sans-serif;
+      }
+
+      .sections {
+        display: grid;
+        gap: 24px;
+        margin-top: 24px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      h2, h3 {
+        margin: 0 0 12px;
+        font: 700 24px/1.1 Georgia, "Times New Roman", serif;
+        letter-spacing: -0.02em;
+      }
+
+      .demo-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .demo-link {
+        display: block;
+        padding: 18px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        color: inherit;
+        background: var(--surface-strong);
+        border: 1px solid var(--border);
+        transition: transform .14s ease, box-shadow .14s ease;
+      }
+
+      .demo-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 50px rgba(59, 84, 122, 0.14);
+      }
+
+      .demo-link strong {
+        display: block;
+        font: 700 16px/1.3 system-ui, sans-serif;
+        color: var(--text);
+      }
+
+      .demo-link span {
+        display: block;
+        margin-top: 6px;
+        font: 500 13px/1.5 system-ui, sans-serif;
+        color: var(--muted);
+      }
+
+      .keyword-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .keyword {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(79, 142, 247, 0.08);
+        border: 1px solid rgba(79, 142, 247, 0.14);
+        color: #44679d;
+        font: 600 12px/1.2 system-ui, sans-serif;
+      }
+
+      .footer {
+        margin-top: 28px;
+        padding: 24px 0 0;
+        border-top: 1px solid rgba(64, 92, 138, 0.12);
+      }
+
+      @media (max-width: 1000px) {
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>spatial-web demos</h1>
-    <ul>
-      <li><a href="./basic-depth.html">basic-depth</a></li>
-      <li><a href="./z-scroll.html">z-scroll</a></li>
-      <li><a href="./depth-hover.html">depth-hover</a></li>
-      <li><a href="./physical-shadow.html">physical-shadow</a></li>
-      <li><a href="./comparison.html">comparison</a></li>
-      <li><a href="./playground.html">playground</a></li>
-      <li><a href="./cards-depth-stack.html">cards-depth-stack</a></li>
-      <li><a href="./dashboard-layers.html">dashboard-layers</a></li>
-      <li><a href="./scrollytelling-z-flow.html">scrollytelling-z-flow</a></li>
-    </ul>
+    <main>
+      <section class="hero">
+        <div class="panel hero-copy">
+          <span class="eyebrow">Spatial Web</span>
+          <h1>Depth for the DOM, not for a canvas.</h1>
+          <p>`spatial-web` is a small library for semantic z-axis layout, physical shadows, depth hover, and z-scroll on regular HTML.</p>
+          <p>Use it when you want layered cards, dashboard hierarchy, scrollytelling, or 3D-feeling UI without jumping to WebGL or Three.js.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="./playground.html">Open playground</a>
+            <a class="button button-secondary" href="./comparison.html">See comparison</a>
+          </div>
+          <div class="keyword-list">
+            <span class="keyword">semantic z-axis layout</span>
+            <span class="keyword">physical shadows for DOM</span>
+            <span class="keyword">3D layout without WebGL</span>
+            <span class="keyword">depth hover UI</span>
+          </div>
+        </div>
+        <div class="panel hero-demo">
+          <div class="demo-grid">
+            <article class="demo-card" style="transform: translate3d(0,0,-90px);">Context layer<span>Back plane for supporting information.</span></article>
+            <article class="demo-card" style="transform: translate3d(0,0,-20px);">Working layer<span>Reference surface with readable content.</span></article>
+            <article class="demo-card" style="transform: translate3d(0,0,70px);">Focus layer<span>Closer UI that benefits from spatial emphasis.</span></article>
+            <article class="demo-card" style="transform: translate3d(0,0,150px);">Action layer<span>Foreground callout without leaving the DOM.</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="sections">
+        <div class="grid">
+          <article class="card">
+            <h2>Why use it</h2>
+            <p>Most interfaces fake depth with custom transforms, arbitrary shadows, and isolated hover logic. `spatial-web` gives those pieces one consistent scene model.</p>
+          </article>
+          <article class="card">
+            <h2>Good fit for</h2>
+            <p>feature cards, layered dashboards, inspector panels, narrative scroll sections, and experimental UI generated by humans or AI coding tools.</p>
+          </article>
+          <article class="card">
+            <h2>Not for</h2>
+            <p>meshes, materials, cameras, game rendering, or full scene graphs that belong in WebGL.</p>
+          </article>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <h3>Core demos</h3>
+            <div class="demo-list">
+              <a class="demo-link" href="./basic-depth.html"><strong>basic-depth</strong><span>Perspective and semantic Z-axis layout.</span></a>
+              <a class="demo-link" href="./z-scroll.html"><strong>z-scroll</strong><span>Wheel mapped into scene depth.</span></a>
+              <a class="demo-link" href="./depth-hover.html"><strong>depth-hover</strong><span>Continuous pointer-driven spatial motion.</span></a>
+              <a class="demo-link" href="./physical-shadow.html"><strong>physical-shadow</strong><span>Shadows projected from a 3D light.</span></a>
+              <a class="demo-link" href="./comparison.html"><strong>comparison</strong><span>Manual hacks versus semantic depth.</span></a>
+              <a class="demo-link" href="./playground.html"><strong>playground</strong><span>Live controls and generated code.</span></a>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Problem-oriented examples</h3>
+            <div class="demo-list">
+              <a class="demo-link" href="./cards-depth-stack.html"><strong>cards-depth-stack</strong><span>Layered feature cards without WebGL.</span></a>
+              <a class="demo-link" href="./dashboard-layers.html"><strong>dashboard-layers</strong><span>Dashboard panels with semantic depth.</span></a>
+              <a class="demo-link" href="./scrollytelling-z-flow.html"><strong>scrollytelling-z-flow</strong><span>Narrative content moving through Z space.</span></a>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Install</h3>
+            <p>Use the published package directly:</p>
+            <pre><code>npm install spatial-web</code></pre>
+            <p class="footer">This page works as a public conversion layer: fast value proposition, concrete problem framing, and direct paths to interactive proof.</p>
+          </article>
+        </div>
+      </section>
+    </main>
   </body>
 </html>
