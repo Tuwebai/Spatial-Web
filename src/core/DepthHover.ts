@@ -4,6 +4,7 @@ import type { DepthHoverOptions, SceneItemState, SpringState } from '../types'
 
 interface DepthHoverBindings {
   container: HTMLElement
+  getContainerMetrics: () => { left: number; top: number }
   items: SceneItemState[]
   requestRender: () => void
 }
@@ -80,9 +81,9 @@ export class DepthHover {
   }
 
   private onPointerMove(event: PointerEvent): void {
-    const containerRect = this.bindings.container.getBoundingClientRect()
-    const pointerX = event.clientX - containerRect.left
-    const pointerY = event.clientY - containerRect.top
+    const containerMetrics = this.bindings.getContainerMetrics()
+    const pointerX = event.clientX - containerMetrics.left
+    const pointerY = event.clientY - containerMetrics.top
     const now = performance.now()
     const elapsed = Math.max(1, now - this.lastTime)
     const velocity = computePointerVelocity(event.clientX, event.clientY, this.lastX, this.lastY, elapsed)

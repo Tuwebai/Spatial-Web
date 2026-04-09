@@ -3,7 +3,7 @@ import { computeBoxShadow } from '../math/shadow'
 import type { LightSource, SceneItemState } from '../types'
 
 interface PhysicalShadowBindings {
-  container: HTMLElement
+  getContainerMetrics: () => { width: number; height: number }
   items: SceneItemState[]
   depthRange: [number, number]
 }
@@ -21,8 +21,9 @@ export class PhysicalShadow {
   }
 
   apply(): void {
-    const containerWidth = this.bindings.container.clientWidth
-    const containerHeight = this.bindings.container.clientHeight
+    const containerMetrics = this.bindings.getContainerMetrics()
+    const containerWidth = containerMetrics.width
+    const containerHeight = containerMetrics.height
 
     for (const item of this.bindings.items) {
       if (!this.light || this.light.intensity === 0 || containerWidth === 0 || containerHeight === 0) {

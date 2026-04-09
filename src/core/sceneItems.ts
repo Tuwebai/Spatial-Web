@@ -1,4 +1,4 @@
-import type { SceneItemMetrics, SceneItemState } from '../types'
+import type { ContainerMetrics, SceneItemMetrics, SceneItemState } from '../types'
 
 function createEmptyMetrics(): SceneItemMetrics {
   return {
@@ -40,14 +40,15 @@ export function collectSceneItems(container: HTMLElement): SceneItemState[] {
   return elements.map((element) => createSceneItem(element))
 }
 
-export function measureSceneItems(container: HTMLElement, items: SceneItemState[]): void {
-  const containerRect = container.getBoundingClientRect()
+export function measureSceneItems(containerMetrics: ContainerMetrics, items: SceneItemState[]): void {
+  const containerLeft = containerMetrics.left
+  const containerTop = containerMetrics.top
 
   for (const item of items) {
     const rect = item.element.getBoundingClientRect()
     item.metrics = {
-      x: rect.left - containerRect.left,
-      y: rect.top - containerRect.top,
+      x: rect.left - containerLeft,
+      y: rect.top - containerTop,
       width: rect.width,
       height: rect.height
     }

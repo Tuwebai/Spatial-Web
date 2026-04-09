@@ -4,6 +4,7 @@ import { DepthScroll } from './DepthScroll'
 import { PhysicalShadow } from './PhysicalShadow'
 import { collectSceneItems, createSceneItem, measureSceneItems, resetSceneItemElement } from './sceneItems'
 import type {
+  ContainerMetrics,
   DepthHoverOptions,
   DepthLayoutOptions,
   DepthScrollOptions,
@@ -22,6 +23,14 @@ export class DepthLayout {
   private readonly options: Required<DepthLayoutOptions>
   private readonly items: SceneItemState[] = []
   private readonly shadowModule: PhysicalShadow
+  private containerMetrics: ContainerMetrics = {
+    left: 0,
+    top: 0,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+  }
   private resizeObserver: ResizeObserver | null = null
   private mutationObserver: MutationObserver | null = null
   private hoverModule: DepthHover | null = null
@@ -42,7 +51,7 @@ export class DepthLayout {
     this.requestRenderBound = () => this.requestRender()
     this.items.push(...collectSceneItems(this.container))
     this.shadowModule = new PhysicalShadow({
-      container: this.container,
+      getContainerMetrics: () => this.containerMetrics,
       items: this.items,
       depthRange: this.options.depthRange
     })
@@ -96,6 +105,7 @@ export class DepthLayout {
     this.hoverModule = new DepthHover(
       {
         container: this.container,
+        getContainerMetrics: () => this.containerMetrics,
         items: this.items,
         requestRender: this.requestRenderBound
       },
@@ -131,7 +141,16 @@ export class DepthLayout {
   }
 
   private measure(): void {
-    measureSceneItems(this.container, this.items)
+    const rect = this.container.getBoundingClientRect()
+    this.containerMetrics = {
+      left: rect.left,
+      top: rect.top,
+      x: 0,
+      y: 0,
+      width: rect.width,
+      height: rect.height
+    }
+    measureSceneItems(this.containerMetrics, this.items)
   }
 
   private syncItems(): void {

@@ -39,6 +39,11 @@ export interface SceneItemMetrics {
   height: number
 }
 
+export interface ContainerMetrics extends SceneItemMetrics {
+  left: number
+  top: number
+}
+
 export interface SceneItemState {
   element: HTMLElement
   baseDepth: number
