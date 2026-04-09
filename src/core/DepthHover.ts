@@ -80,6 +80,9 @@ export class DepthHover {
   }
 
   private onPointerMove(event: PointerEvent): void {
+    const containerRect = this.bindings.container.getBoundingClientRect()
+    const pointerX = event.clientX - containerRect.left
+    const pointerY = event.clientY - containerRect.top
     const now = performance.now()
     const elapsed = Math.max(1, now - this.lastTime)
     const velocity = computePointerVelocity(event.clientX, event.clientY, this.lastX, this.lastY, elapsed)
@@ -92,8 +95,8 @@ export class DepthHover {
       const state = this.getState(item)
       state.target = computeHoverTarget(
         item,
-        event.offsetX,
-        event.offsetY,
+        pointerX,
+        pointerY,
         this.config.responseRange,
         this.config.velocityFactor,
         velocity
