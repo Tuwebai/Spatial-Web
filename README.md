@@ -10,8 +10,6 @@ Instead of hand-authoring `translateZ()`, fake perspective, and invented shadows
 npm install spatial-web
 ```
 
-Mientras el paquete no esté publicado en npm, el flujo real sigue siendo clonar este repo y ejecutar `npm install` dentro de `proyecto-Spatial-Web/`.
-
 ## Demos
 
 Cloná el repo, corré:
