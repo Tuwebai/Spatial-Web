@@ -6,12 +6,12 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050810'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <title>z-scroll</title>
     <style>
-      body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 58%); color: #e8eeff; }
+      body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%); color: #18243a; }
       #scene { min-height: 100vh; padding: 120px 24px 64px; display: grid; gap: 18px; max-width: 760px; margin: 0 auto; perspective: 1100px; }
-      article { padding: 24px; border-radius: 18px; background: rgba(17, 25, 42, 0.9); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); }
+      article { padding: 24px; border-radius: 18px; background: rgba(255,255,255,.94); border: 1px solid rgba(64,92,138,.14); box-shadow: 0 18px 45px rgba(54, 78, 111, .12); }
       .hud { position: fixed; top: 16px; right: 16px; display: grid; gap: 8px; z-index: 5; }
-      .pill { background: rgba(9, 14, 26, 0.84); padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); }
-      .axis { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); width: 8px; height: 280px; background: rgba(255,255,255,.08); border-radius: 999px; }
+      .pill { background: rgba(255,255,255,.9); padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(64,92,138,.12); box-shadow: 0 10px 30px rgba(59, 84, 122, 0.12); }
+      .axis { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); width: 8px; height: 280px; background: rgba(91, 117, 161, .18); border-radius: 999px; }
       .axis::after { content: ""; position: absolute; left: -6px; top: var(--indicator, 140px); width: 20px; height: 20px; border-radius: 50%; background: #4f8ef7; box-shadow: 0 0 24px rgba(79, 142, 247, 0.8); }
     </style>
   </head>
