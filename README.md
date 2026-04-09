@@ -76,6 +76,12 @@ Problem-oriented examples:
 - `dashboard-layers`: dashboard panels with semantic depth
 - `scrollytelling-z-flow`: narrative blocks moving through Z space
 
+Framework-oriented examples:
+
+- `examples/react-feature-cards.tsx`: React feature cards with depth hover and light
+- `examples/next-dashboard-scene.tsx`: Next.js client component for layered dashboards
+- `examples/next-scrollytelling-z.tsx`: Next.js client component for z-scroll storytelling
+
 ## Quick start
 
 ```html
@@ -202,6 +208,7 @@ npm run pack:check
 
 - `src/`: TypeScript runtime
 - `demos/`: interactive examples
+- `examples/`: React and Next copy-paste examples
 - `dist/`: generated bundles
 
 ## Current status
