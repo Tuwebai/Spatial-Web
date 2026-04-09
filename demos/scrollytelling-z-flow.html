@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffffff'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>scrollytelling-z-flow</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%); color: #18243a; }
+      #scene { min-height: 100vh; max-width: 920px; margin: 0 auto; padding: 80px 24px 120px; display: grid; gap: 24px; }
+      article { padding: 28px; border-radius: 24px; background: rgba(255,255,255,.94); border: 1px solid rgba(64,92,138,.14); box-shadow: 0 24px 70px rgba(59,84,122,.12); color: #1e2b44; }
+      .pill { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,.92); border: 1px solid rgba(64,92,138,.12); border-radius: 999px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(59,84,122,.12); }
+    </style>
+  </head>
+  <body>
+    <div class="pill">Wheel to move the narrative through depth</div>
+    <section id="scene">
+      <article data-depth="-180"><strong>Act 1</strong><p>Background context enters first.</p></article>
+      <article data-depth="-60"><strong>Act 2</strong><p>Supporting explanation sits behind the main message.</p></article>
+      <article data-depth="20"><strong>Act 3</strong><p>The main narrative plane stays readable.</p></article>
+      <article data-depth="120"><strong>Act 4</strong><p>Foreground callout advances toward the reader.</p></article>
+    </section>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1100, depthRange: [-300, 300] })
+      runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
+      runtime.setLight({ x: 140, y: -220, z: 760, intensity: 1.05 })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffffff'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>cards-depth-stack</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%); color: #18243a; }
+      main { min-height: 100vh; display: grid; grid-template-columns: 320px 1fr; gap: 24px; padding: 24px; box-sizing: border-box; }
+      .panel, .scene-shell { background: rgba(255,255,255,.9); border: 1px solid rgba(64,92,138,.1); border-radius: 24px; box-shadow: 0 24px 70px rgba(59,84,122,.12); }
+      .panel { padding: 24px; }
+      .scene-shell { position: relative; overflow: hidden; }
+      #scene { min-height: calc(100vh - 48px); display: grid; grid-template-columns: repeat(2, minmax(0, 260px)); place-content: center; gap: 24px; padding: 40px; }
+      .card { padding: 24px; border-radius: 22px; background: rgba(255,255,255,.94); border: 1px solid rgba(64,92,138,.16); color: #1e2b44; }
+      .floor { position: absolute; inset: auto 10% 7% 10%; height: 280px; border-radius: 50%; background: radial-gradient(circle at center, rgba(160,179,209,.44) 0%, rgba(194,208,231,.18) 44%, rgba(236,242,250,0) 74%); transform: perspective(900px) rotateX(72deg); opacity: .95; }
+      .light { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #ffd76a; box-shadow: 0 0 24px rgba(255,215,106,.85); z-index: 3; }
+      .chip { display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 999px; background: rgba(79,142,247,.1); color: #44679d; font-size: 12px; }
+      @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="panel">
+        <h1>Layered cards without WebGL</h1>
+        <p>Example for landing pages, pricing sections, feature stacks, and AI-generated marketing UI that needs real depth without moving to a canvas scene.</p>
+        <ul>
+          <li>semantic `data-depth` per card</li>
+          <li>physical shadows from one light source</li>
+          <li>depth hover for spatial emphasis</li>
+        </ul>
+      </section>
+      <section class="scene-shell">
+        <div class="floor"></div>
+        <div class="light" id="light"></div>
+        <section id="scene">
+          <article class="card" data-depth="-120"><strong>Infrastructure</strong><div class="chip">data-depth="-120"</div></article>
+          <article class="card" data-depth="-20"><strong>Workflows</strong><div class="chip">data-depth="-20"</div></article>
+          <article class="card" data-depth="80"><strong>Insights</strong><div class="chip">data-depth="80"</div></article>
+          <article class="card" data-depth="180"><strong>Automation</strong><div class="chip">data-depth="180"</div></article>
+        </section>
+      </section>
+    </main>
+    <script src="../dist/spatial-web.iife.js"></script>
+    <script>
+      const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1000, depthRange: [-300, 300] })
+      runtime.enableDepthHover({ responseRange: 72, velocityFactor: 0.5, returnEasing: 'spring' })
+      runtime.setLight({ x: 240, y: -140, z: 620, intensity: 1.2 })
+
+      const scene = document.getElementById('scene')
+      const light = document.getElementById('light')
+      const renderLight = () => {
+        const rect = scene.getBoundingClientRect()
+        light.style.left = `${rect.width / 2 + 240 - 9}px`
+        light.style.top = `${rect.height / 2 - 140 - 9}px`
+      }
+      renderLight()
+      window.addEventListener('resize', renderLight)
+    </script>
+  </body>
+</html>

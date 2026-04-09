@@ -1,8 +1,8 @@
 # Spatial Web
 
-Pure JavaScript/TypeScript library for semantic depth layout on the DOM. `spatial-web` adds a real Z dimension to regular HTML without WebGL, without layout reflow in the hot path, and without sacrificing accessibility, SEO, or crawlability.
+Pure JavaScript/TypeScript library for semantic depth layout on the DOM. `spatial-web` adds a real Z axis to regular HTML without WebGL, without layout reflow in the hot path, and without sacrificing accessibility, SEO, or crawlability.
 
-Instead of hand-authoring `translateZ()`, fake perspective, and invented shadows, you declare `data-depth` and let the runtime compute spatial projection, pointer response, z-scroll, and light-driven shadows from a consistent scene model.
+If you need 3D feeling in UI but do not want a canvas scene, this library gives you DOM depth, physical shadows, depth hover, and z-scroll with a small declarative API.
 
 ## Installation
 
@@ -10,33 +10,73 @@ Instead of hand-authoring `translateZ()`, fake perspective, and invented shadows
 npm install spatial-web
 ```
 
+## What problem does it solve?
+
+Most web UIs fake depth with isolated tricks:
+
+- `translateZ()` without semantic scene rules
+- hardcoded shadows that ignore the light source
+- hover effects that only toggle on or off
+- scroll experiences that need custom one-off math
+
+`spatial-web` solves those problems with one runtime model for:
+
+- semantic Z-axis layout for DOM elements
+- physical shadow projection from a 3D light
+- continuous pointer-driven depth interaction
+- z-scroll for storytelling, cards, dashboards, and layered UI
+
+## When to use `spatial-web`
+
+Use it when you want:
+
+- depth in the DOM without WebGL
+- physical shadows for regular HTML cards
+- layered dashboards and panels
+- scrollytelling with z-axis movement
+- semantic depth hover for panels, tooltips, and inspectors
+
+Do not use it if you need:
+
+- meshes, cameras, materials, or full 3D engines
+- game rendering
+- complex scene graphs better handled by WebGL or Three.js
+
+## Why it is different
+
+- regular HTML stays readable by screen readers and crawlers
+- no canvas scene required
+- shadows come from light + element position, not manual art direction
+- the same scene can combine layout, hover, scroll, and lighting
+- the runtime is tiny and dependency-free
+
 ## Demos
 
-Cloná el repo, corré:
+Clone the repo, run:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Después abrí `demos/index.html` desde el servidor local.
+Then open `demos/index.html` from the local server.
 
-Demos incluidas:
+Core demos:
 
-- `basic-depth`: perspectiva y lectura del eje Z
-- `z-scroll`: navegación por profundidad con wheel
-- `depth-hover`: respuesta continua al puntero
-- `physical-shadow`: sombra proyectada desde una luz 3D
-- `comparison`: contraste entre hacks manuales y layout semántico
-- `playground`: escena interactiva con controles en vivo
+- `basic-depth`: perspective and semantic Z-axis layout
+- `z-scroll`: wheel mapped to depth
+- `depth-hover`: continuous pointer response
+- `physical-shadow`: shadow projection from a 3D light
+- `comparison`: hacks vs semantic spatial layout
+- `playground`: live controls and generated code
 
-## API
+Problem-oriented examples:
 
-`spatial-web` cubre cuatro capacidades del MVP:
+- `cards-depth-stack`: layered feature cards without WebGL
+- `dashboard-layers`: dashboard panels with semantic depth
+- `scrollytelling-z-flow`: narrative blocks moving through Z space
 
-### 1. Depth layout
-
-Declarás profundidad en HTML y el runtime proyecta cada plano en el viewport:
+## Quick start
 
 ```html
 <div id="scene">
@@ -44,7 +84,35 @@ Declarás profundidad en HTML y el runtime proyecta cada plano en el viewport:
   <article data-depth="0">Base plane</article>
   <article data-depth="180">Front plane</article>
 </div>
+
+<script type="module">
+  import { DepthLayout } from 'spatial-web'
+
+  const scene = new DepthLayout('#scene', {
+    perspective: 1000,
+    depthRange: [-300, 300]
+  })
+
+  scene.enableDepthHover({
+    responseRange: 80,
+    velocityFactor: 0.4,
+    returnEasing: 'spring'
+  })
+
+  scene.setLight({
+    x: 180,
+    y: -120,
+    z: 600,
+    intensity: 1.3
+  })
+</script>
 ```
+
+## API
+
+### `DepthLayout`
+
+Reads `data-depth` from child elements and projects them in a consistent 3D scene:
 
 ```ts
 import { DepthLayout } from 'spatial-web'
@@ -55,9 +123,9 @@ const scene = new DepthLayout('#scene', {
 })
 ```
 
-### 2. Depth hover
+### `enableDepthHover`
 
-El puntero no activa estados binarios. Empuja o retrae elementos como una respuesta espacial continua:
+Adds continuous depth response based on pointer position and velocity:
 
 ```ts
 scene.enableDepthHover({
@@ -67,9 +135,9 @@ scene.enableDepthHover({
 })
 ```
 
-### 3. Z-scroll
+### `enableDepthScroll`
 
-El wheel puede mapearse al eje Z de la escena:
+Maps scroll into the Z axis:
 
 ```ts
 scene.enableDepthScroll({
@@ -79,9 +147,9 @@ scene.enableDepthScroll({
 })
 ```
 
-### 4. Physical shadow
+### `setLight`
 
-Las sombras salen de una luz 3D declarada, no de valores visuales inventados a mano:
+Projects box shadows from a declared 3D light:
 
 ```ts
 scene.setLight({
@@ -92,25 +160,17 @@ scene.setLight({
 })
 ```
 
-## Why this exists
+## Keywords
 
-La web ya resuelve layout en X e Y, pero no ofrece una dimensión Z semántica y utilizable a nivel DOM. `spatial-web` explora esa pieza faltante con un runtime pequeño, declarativo y compatible con la web real.
+This project is especially relevant if you are searching for:
 
-Esto permite:
-
-- profundidad consistente entre elementos sin hacks visuales aislados
-- hover y scroll espaciales reutilizables
-- sombras coherentes con la posición real del elemento
-- escenas interactivas sin migrar a WebGL
-
-## Principles
-
-- zero dependencies
-- declarativo primero
-- sin reflow en el hot path
-- DOM semántico intacto
-- tree-shakeable
-- progressive enhancement
+- DOM depth library
+- semantic z-axis layout
+- 3D layout without WebGL
+- physical shadows for DOM elements
+- depth hover UI
+- z-scroll JavaScript library
+- layered UI cards without Three.js
 
 ## Development
 
@@ -124,7 +184,7 @@ npm run dev
 npm run build
 ```
 
-Artefactos generados:
+Generated artifacts:
 
 - `dist/spatial-web.js`
 - `dist/spatial-web.iife.js`
@@ -140,10 +200,10 @@ npm run pack:check
 
 ## Repo structure
 
-- `src/`: runtime TypeScript
-- `demos/`: ejemplos interactivos
-- `dist/`: bundles generados
+- `src/`: TypeScript runtime
+- `demos/`: interactive examples
+- `dist/`: generated bundles
 
 ## Current status
 
-Este repo implementa el MVP de `Spatial Web Layout Primitive`: una librería pequeña, sin dependencias, orientada a validar que el layout espacial puede vivir dentro del DOM tradicional con una API simple y una experiencia de desarrollo clara.
+This repo implements the `Spatial Web Layout Primitive` MVP: a small dependency-free runtime designed to prove that spatial layout can live inside the traditional DOM with a simple declarative API.
