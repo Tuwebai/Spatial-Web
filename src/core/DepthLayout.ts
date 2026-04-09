@@ -2,7 +2,7 @@ import { clampDepth, computeMatrix3d } from '../math/perspective'
 import { DepthHover } from './DepthHover'
 import { DepthScroll } from './DepthScroll'
 import { PhysicalShadow } from './PhysicalShadow'
-import { collectSceneItems, measureSceneItems } from './sceneItems'
+import { collectSceneItems, createSceneItem, measureSceneItems, resetSceneItemElement } from './sceneItems'
 import type {
   DepthHoverOptions,
   DepthLayoutOptions,
@@ -23,6 +23,7 @@ export class DepthLayout {
   private readonly items: SceneItemState[] = []
   private readonly shadowModule: PhysicalShadow
   private resizeObserver: ResizeObserver | null = null
+  private mutationObserver: MutationObserver | null = null
   private hoverModule: DepthHover | null = null
   private scrollModule: DepthScroll | null = null
   private frameId = 0
@@ -58,6 +59,18 @@ export class DepthLayout {
       for (const item of this.items) {
         this.resizeObserver.observe(item.element)
       }
+    }
+
+    if (this.options.autoUpdate && 'MutationObserver' in window) {
+      this.mutationObserver = new MutationObserver(() => {
+        this.syncItems()
+      })
+      this.mutationObserver.observe(this.container, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-depth']
+      })
     }
 
     this.measure()
@@ -101,12 +114,57 @@ export class DepthLayout {
     }
 
     this.resizeObserver?.disconnect()
+    this.mutationObserver?.disconnect()
     this.scrollModule?.destroy()
     this.hoverModule?.destroy()
+    this.container.style.transformStyle = ''
+    this.container.style.perspective = ''
+
+    for (const item of this.items) {
+      resetSceneItemElement(item.element)
+    }
+  }
+
+  refresh(): void {
+    this.syncItems()
   }
 
   private measure(): void {
     measureSceneItems(this.container, this.items)
+  }
+
+  private syncItems(): void {
+    const nextElements = new Set(this.container.querySelectorAll<HTMLElement>('[data-depth]'))
+
+    for (let index = this.items.length - 1; index >= 0; index -= 1) {
+      const item = this.items[index]
+      if (!item) {
+        continue
+      }
+
+      if (nextElements.has(item.element)) {
+        item.baseDepth = Number.parseFloat(item.element.dataset.depth ?? '0') || 0
+        continue
+      }
+
+      this.resizeObserver?.unobserve(item.element)
+      resetSceneItemElement(item.element)
+      this.items.splice(index, 1)
+    }
+
+    for (const element of nextElements) {
+      const existing = this.items.find((item) => item.element === element)
+      if (existing) {
+        continue
+      }
+
+      const item = createSceneItem(element)
+      this.items.push(item)
+      this.resizeObserver?.observe(element)
+    }
+
+    this.measure()
+    this.requestRenderBound()
   }
 
   private requestRender(): void {
