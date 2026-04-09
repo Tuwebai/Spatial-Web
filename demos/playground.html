@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050810'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <title>playground</title>
     <style>
       body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #15274b 0%, #050810 60%); color: #e8eeff; }
@@ -25,6 +26,9 @@
       button { border: 0; border-radius: 12px; padding: 10px 12px; background: #4f8ef7; color: white; cursor: pointer; }
       input[type="range"] { width: 100%; }
       .row { display: grid; gap: 6px; }
+      .mini { font-size: 12px; color: #9ebfff; }
+      .stats { display: grid; gap: 8px; margin-top: 12px; }
+      .stat { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06); font-size: 13px; }
       @media (max-width: 1200px) {
         .app { grid-template-columns: 1fr; }
         #scene { min-height: 60vh; }
@@ -39,6 +43,12 @@
           <div class="group">
             <label>Perspective: <strong id="perspectiveValue">1000</strong>px</label>
             <input id="perspectiveRange" type="range" min="500" max="2000" value="1000" step="50" />
+            <label>Hover response: <strong id="hoverRangeValue">72</strong>px</label>
+            <input id="hoverRange" type="range" min="20" max="160" value="72" step="4" />
+            <label>Hover velocity: <strong id="hoverVelocityValue">0.50</strong></label>
+            <input id="hoverVelocity" type="range" min="0.1" max="1.2" value="0.5" step="0.05" />
+            <label>Z-scroll speed: <strong id="scrollSpeedValue">0.45</strong></label>
+            <input id="scrollSpeed" type="range" min="0.1" max="1.2" value="0.45" step="0.05" />
           </div>
           <div class="group">
             <label><input id="hoverToggle" type="checkbox" checked /> Enable hover</label>
@@ -46,9 +56,20 @@
             <label><input id="shadowToggle" type="checkbox" checked /> Enable shadows</label>
           </div>
           <div class="group">
+            <label>Light intensity: <strong id="lightIntensityValue">1.30</strong></label>
+            <input id="lightIntensity" type="range" min="0.4" max="2" value="1.3" step="0.05" />
+            <label>Light depth: <strong id="lightDepthValue">600</strong>px</label>
+            <input id="lightDepth" type="range" min="260" max="1200" value="600" step="20" />
+            <div class="mini">Arrastrá el punto de luz para mover X e Y. Estos sliders afinan Z e intensidad.</div>
+          </div>
+          <div class="group">
             <button id="addCard">+ Add element</button>
           </div>
           <div class="group" id="cardControls"></div>
+          <div class="stats">
+            <div class="stat" id="activeModules"></div>
+            <div class="stat" id="lightSummary"></div>
+          </div>
         </div>
       </section>
       <section class="panel scene-shell">
@@ -69,9 +90,21 @@
       const codeOutput = document.getElementById('codeOutput')
       const perspectiveRange = document.getElementById('perspectiveRange')
       const perspectiveValue = document.getElementById('perspectiveValue')
+      const hoverRange = document.getElementById('hoverRange')
+      const hoverRangeValue = document.getElementById('hoverRangeValue')
+      const hoverVelocity = document.getElementById('hoverVelocity')
+      const hoverVelocityValue = document.getElementById('hoverVelocityValue')
+      const scrollSpeed = document.getElementById('scrollSpeed')
+      const scrollSpeedValue = document.getElementById('scrollSpeedValue')
       const hoverToggle = document.getElementById('hoverToggle')
       const scrollToggle = document.getElementById('scrollToggle')
       const shadowToggle = document.getElementById('shadowToggle')
+      const lightIntensity = document.getElementById('lightIntensity')
+      const lightIntensityValue = document.getElementById('lightIntensityValue')
+      const lightDepth = document.getElementById('lightDepth')
+      const lightDepthValue = document.getElementById('lightDepthValue')
+      const activeModules = document.getElementById('activeModules')
+      const lightSummary = document.getElementById('lightSummary')
       const addCard = document.getElementById('addCard')
 
       let runtime = null
@@ -117,10 +150,20 @@
           ``,
           `const scene = new DepthLayout('#scene', { perspective: ${perspectiveRange.value} })`
         ]
-        if (hoverToggle.checked) lines.push(`scene.enableDepthHover({ responseRange: 72, velocityFactor: 0.5 })`)
-        if (scrollToggle.checked) lines.push(`scene.enableDepthScroll({ axis: 'mixed', speed: 0.45 })`)
-        if (shadowToggle.checked) lines.push(`scene.setLight({ x: ${Math.round(lightState.x)}, y: ${Math.round(lightState.y)}, z: ${Math.round(lightState.z)} })`)
+        if (hoverToggle.checked) lines.push(`scene.enableDepthHover({ responseRange: ${hoverRange.value}, velocityFactor: ${Number(hoverVelocity.value).toFixed(2)} })`)
+        if (scrollToggle.checked) lines.push(`scene.enableDepthScroll({ axis: 'mixed', speed: ${Number(scrollSpeed.value).toFixed(2)} })`)
+        if (shadowToggle.checked) lines.push(`scene.setLight({ x: ${Math.round(lightState.x)}, y: ${Math.round(lightState.y)}, z: ${Math.round(lightState.z)}, intensity: ${Number(lightState.intensity).toFixed(2)} })`)
         codeOutput.textContent = lines.join('\n')
+      }
+
+      const updateTelemetry = () => {
+        const enabled = [
+          hoverToggle.checked ? `hover ${hoverRange.value}px / ${Number(hoverVelocity.value).toFixed(2)}` : null,
+          scrollToggle.checked ? `z-scroll ${Number(scrollSpeed.value).toFixed(2)}` : null,
+          shadowToggle.checked ? `shadows on` : null
+        ].filter(Boolean)
+        activeModules.textContent = `Modules: ${enabled.length ? enabled.join(' | ') : 'layout only'}`
+        lightSummary.textContent = `Light: x ${Math.round(lightState.x)} | y ${Math.round(lightState.y)} | z ${Math.round(lightState.z)} | intensity ${Number(lightState.intensity).toFixed(2)}`
       }
 
       const mount = () => {
@@ -130,18 +173,35 @@
           perspective: Number(perspectiveRange.value),
           depthRange: [-300, 300]
         })
-        if (hoverToggle.checked) runtime.enableDepthHover({ responseRange: 72, velocityFactor: 0.5, returnEasing: 'spring' })
-        if (scrollToggle.checked) runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
+        if (hoverToggle.checked) runtime.enableDepthHover({ responseRange: Number(hoverRange.value), velocityFactor: Number(hoverVelocity.value), returnEasing: 'spring' })
+        if (scrollToggle.checked) runtime.enableDepthScroll({ axis: 'mixed', speed: Number(scrollSpeed.value), easing: 'spring' })
         if (shadowToggle.checked) runtime.setLight(lightState)
         perspectiveValue.textContent = perspectiveRange.value
+        hoverRangeValue.textContent = hoverRange.value
+        hoverVelocityValue.textContent = Number(hoverVelocity.value).toFixed(2)
+        scrollSpeedValue.textContent = Number(scrollSpeed.value).toFixed(2)
+        lightIntensityValue.textContent = Number(lightIntensity.value).toFixed(2)
+        lightDepthValue.textContent = lightDepth.value
         renderLight()
+        updateTelemetry()
         updateCode()
       }
 
       perspectiveRange.addEventListener('input', mount)
+      hoverRange.addEventListener('input', mount)
+      hoverVelocity.addEventListener('input', mount)
+      scrollSpeed.addEventListener('input', mount)
       hoverToggle.addEventListener('change', mount)
       scrollToggle.addEventListener('change', mount)
       shadowToggle.addEventListener('change', mount)
+      lightIntensity.addEventListener('input', () => {
+        lightState.intensity = Number(lightIntensity.value)
+        mount()
+      })
+      lightDepth.addEventListener('input', () => {
+        lightState.z = Number(lightDepth.value)
+        mount()
+      })
       addCard.addEventListener('click', () => {
         cards.push(Math.min(300, -160 + cards.length * 80))
         renderControls()

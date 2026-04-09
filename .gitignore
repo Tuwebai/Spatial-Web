@@ -11,6 +11,7 @@ dist/
 # Temporales de validacion local
 .playwright-inline/
 playwright-validate-*.js
+playwright-validate-*.cjs
 
 # Artefactos comunes de entorno
 .DS_Store

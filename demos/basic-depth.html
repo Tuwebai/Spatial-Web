@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050810'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <title>basic-depth</title>
     <style>
       body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 58%); color: #e8eeff; }
@@ -17,8 +18,10 @@
       .chip { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(79, 142, 247, 0.14); color: #8ab7ff; font-size: 12px; }
       .hud { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
       .metric { padding: 12px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06); }
+      .metric code { display: block; margin-top: 8px; font-size: 11px; line-height: 1.45; color: #9ebfff; word-break: break-word; }
       .axis { position: absolute; right: 20px; top: 32px; width: 8px; height: calc(100% - 64px); background: rgba(255,255,255,.08); border-radius: 999px; }
       .dot { position: absolute; left: -7px; width: 22px; height: 22px; border-radius: 50%; background: #4f8ef7; box-shadow: 0 0 26px rgba(79, 142, 247, 0.8); }
+      .legend { margin-top: 16px; padding: 12px 14px; border-radius: 16px; background: rgba(79, 142, 247, 0.08); border: 1px solid rgba(79, 142, 247, 0.18); font-size: 13px; line-height: 1.5; }
       @media (max-width: 980px) {
         .layout { grid-template-columns: 1fr; }
         #scene { min-height: 70vh; grid-template-columns: 1fr; padding-right: 64px; }
@@ -41,13 +44,24 @@
         </div>
         <div class="hud">
           <div class="metric">
-            <strong>Plano mas lejano</strong>
+            <strong>Plano más lejano</strong>
             <div id="backLabel">depth -220</div>
           </div>
           <div class="metric">
             <strong>Plano frontal</strong>
             <div id="frontLabel">depth 280</div>
           </div>
+          <div class="metric">
+            <strong>Transform real</strong>
+            <code id="transformValue">matrix3d(...)</code>
+          </div>
+          <div class="metric">
+            <strong>Lectura rápida</strong>
+            <code id="matrixValue">perspective(1000px) + depth(280px)</code>
+          </div>
+        </div>
+        <div class="legend">
+          La tarjeta resaltada muestra el <code>transform</code> que el runtime le entrega al browser. Al cambiar la perspectiva, el eje Z sigue igual, pero la proyección visible cambia.
         </div>
       </section>
       <section class="panel scene-wrap">
@@ -61,6 +75,10 @@
       const perspectiveRange = document.getElementById('perspectiveRange')
       const perspectiveValue = document.getElementById('perspectiveValue')
       const axis = document.getElementById('axis')
+      const transformValue = document.getElementById('transformValue')
+      const matrixValue = document.getElementById('matrixValue')
+      const backLabel = document.getElementById('backLabel')
+      const frontLabel = document.getElementById('frontLabel')
       const depths = [-220, -160, -100, -40, 0, 60, 120, 180, 280]
       let runtime = null
 
@@ -94,6 +112,18 @@
           depthRange: [-300, 300]
         })
         perspectiveValue.textContent = perspectiveRange.value
+        backLabel.textContent = `depth ${depths[0]}`
+        frontLabel.textContent = `depth ${depths[depths.length - 1]}`
+        requestAnimationFrame(() => {
+          const cards = Array.from(scene.querySelectorAll('.card'))
+          const featuredCard = cards[cards.length - 1]
+          cards.forEach((card, index) => {
+            card.style.outline = index === cards.length - 1 ? '2px solid rgba(79, 142, 247, 0.55)' : 'none'
+          })
+          const transform = featuredCard?.style.transform || getComputedStyle(featuredCard).transform || 'none'
+          transformValue.textContent = transform
+          matrixValue.textContent = `perspective(${perspectiveRange.value}px) + depth(${depths[depths.length - 1]}px)`
+        })
       }
 
       perspectiveRange.addEventListener('input', mountRuntime)

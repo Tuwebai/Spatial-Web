@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050810'/%3E%3Cpath d='M18 20h28L22 44h24' fill='none' stroke='%234f8ef7' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <title>z-scroll</title>
     <style>
       body { margin: 0; font-family: system-ui, sans-serif; background: radial-gradient(circle at top, #13213e 0%, #050810 58%); color: #e8eeff; }
@@ -37,12 +38,19 @@
       const runtime = new SpatialWeb.DepthLayout('#scene', { perspective: 1100, depthRange: [-300, 300] })
       runtime.enableDepthScroll({ axis: 'mixed', speed: 0.45, easing: 'spring' })
 
-      scene.addEventListener('wheel', (event) => {
-        accumulatedDepth -= event.deltaY * 0.45 * 0.55
+      const updateDepthMeter = (deltaY) => {
+        accumulatedDepth -= deltaY * 0.45 * 0.55
         depthValue.textContent = Math.round(accumulatedDepth)
         const indicator = Math.max(0, Math.min(260, 140 + accumulatedDepth * 0.15))
         axis.style.setProperty('--indicator', `${indicator}px`)
-      }, { passive: true })
+      }
+
+      const handleWheel = (event) => {
+        updateDepthMeter(event.deltaY)
+      }
+
+      scene.addEventListener('wheel', handleWheel, { passive: true })
+      window.addEventListener('wheel', handleWheel, { passive: true })
     </script>
   </body>
 </html>

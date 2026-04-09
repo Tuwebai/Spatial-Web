@@ -29,8 +29,10 @@ La propuesta de `spatial-web` es simple: el developer declara profundidad en HTM
 ## Instalación
 
 ```bash
-npm install
+npm install spatial-web
 ```
+
+Mientras no se publique el paquete, el flujo real sigue siendo clonar este repo y ejecutar `npm install` dentro de `proyecto-Spatial-Web/`.
 
 ## Desarrollo
 
@@ -44,6 +46,14 @@ Esto levanta el bundle IIFE para trabajar las demos locales.
 
 ```bash
 npm run build
+```
+
+## Verificación de publicación
+
+```bash
+npm run typecheck
+npm run build
+npm run pack:check
 ```
 
 Artefactos generados:

@@ -2,10 +2,29 @@
   "name": "spatial-web",
   "version": "0.1.0",
   "description": "Semantic Z-axis layout runtime for the web without WebGL.",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/spatial-web.js",
   "module": "./dist/spatial-web.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tuwebai/Spatial-Web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tuwebai/Spatial-Web/issues"
+  },
+  "homepage": "https://github.com/Tuwebai/Spatial-Web#readme",
+  "keywords": [
+    "layout",
+    "dom",
+    "3d",
+    "depth",
+    "spatial",
+    "typescript",
+    "web"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -13,7 +32,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "node -e \"const { execSync } = require('node:child_process'); execSync('npm run build:esm', { stdio: 'inherit' }); execSync('npm run build:iife', { stdio: 'inherit' }); execSync('npm run build:types', { stdio: 'inherit' });\"",
@@ -21,7 +42,9 @@
     "build:iife": "esbuild src/index.ts --bundle --format=iife --global-name=SpatialWeb --target=es2020 --minify --tree-shaking=true --outfile=dist/spatial-web.iife.js",
     "dev": "esbuild src/index.ts --bundle --format=iife --global-name=SpatialWeb --target=es2020 --outfile=dist/spatial-web.iife.js --watch --servedir=.",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "build:types": "tsc --project tsconfig.json --emitDeclarationOnly"
+    "build:types": "tsc --project tsconfig.json --emitDeclarationOnly",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "node -e \"const { execSync } = require('node:child_process'); execSync('npm run typecheck', { stdio: 'inherit' }); execSync('npm run build', { stdio: 'inherit' }); execSync('npm run pack:check', { stdio: 'inherit' });\""
   },
   "devDependencies": {
     "esbuild": "^0.25.2",
