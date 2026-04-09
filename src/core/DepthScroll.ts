@@ -1,9 +1,11 @@
 import { createSpring, isSpringSettled } from '../math/spring'
+import { clampDepth } from '../math/perspective'
 import type { DepthScrollOptions, SceneItemState, SpringState } from '../types'
 
 interface DepthScrollBindings {
   container: HTMLElement
   items: SceneItemState[]
+  depthRange: [number, number]
   requestRender: () => void
 }
 
@@ -67,7 +69,9 @@ export class DepthScroll {
 
     for (const item of this.bindings.items) {
       const state = this.getState(item)
-      state.target -= delta
+      const minScrollDepth = this.bindings.depthRange[0] - item.baseDepth
+      const maxScrollDepth = this.bindings.depthRange[1] - item.baseDepth
+      state.target = clampDepth(state.target - delta, [minScrollDepth, maxScrollDepth])
     }
 
     this.bindings.requestRender()

@@ -83,6 +83,7 @@ export class DepthLayout {
       {
         container: this.container,
         items: this.items,
+        depthRange: this.options.depthRange,
         requestRender: this.requestRenderBound
       },
       options

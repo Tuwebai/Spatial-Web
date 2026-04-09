@@ -16,7 +16,7 @@ export class PhysicalShadow {
   setLight(light: LightSource): void {
     this.light = {
       ...light,
-      intensity: light.intensity ?? 1
+      intensity: Math.max(0, light.intensity ?? 1)
     }
   }
 
@@ -25,7 +25,7 @@ export class PhysicalShadow {
     const containerHeight = this.bindings.container.clientHeight
 
     for (const item of this.bindings.items) {
-      if (!this.light) {
+      if (!this.light || this.light.intensity === 0 || containerWidth === 0 || containerHeight === 0) {
         item.element.style.boxShadow = ''
         continue
       }
