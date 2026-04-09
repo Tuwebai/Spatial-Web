@@ -169,6 +169,24 @@ scene.setLight({
 })
 ```
 
+## Default options
+
+These are the runtime defaults if you omit configuration:
+
+- `DepthLayout`: `perspective: 1000`, `depthRange: [-300, 300]`, `autoUpdate: true`
+- `enableDepthHover`: `responseRange: 80`, `velocityFactor: 0.4`, `returnEasing: 'spring'`
+- `enableDepthScroll`: `axis: 'mixed'`, `speed: 0.8`, `easing: 'spring'`
+- `setLight`: `intensity: 1`
+
+## `spatial-web` vs `translateZ()`
+
+Plain CSS `translateZ()` can move a single element in 3D, but it does not give you a scene model.
+
+- `translateZ()` is a visual transform only; `spatial-web` adds scene-level depth rules
+- `translateZ()` does not solve hover math, scroll mapping, or dynamic scene updates
+- CSS shadows are manual styling; `spatial-web` projects them from a declared light
+- `translateZ()` is enough for isolated effects; `spatial-web` is for coordinated layered interfaces
+
 ## Keywords
 
 This project is especially relevant if you are searching for:
