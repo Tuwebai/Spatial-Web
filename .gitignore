@@ -6,7 +6,6 @@ skills/*
 
 # Dependencias y builds locales
 node_modules/
-dist/
 
 # Temporales de validacion local
 .playwright-inline/
